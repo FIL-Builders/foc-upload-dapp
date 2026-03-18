@@ -37,7 +37,7 @@ const SECONDARY_PROVIDER_STEPS: StepTemplate[] = [
   { id: "confirm", label: "Confirm on-chain" },
 ];
 
-export const APP_METADATA = { DAPPID: config.dappId } as const;
+export const APP_METADATA = { source: config.dappId } as const;
 
 export type UploadParams = {
   copies: number;

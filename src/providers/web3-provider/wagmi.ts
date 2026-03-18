@@ -28,7 +28,7 @@ const getConnectors = () => {
     ],
     {
       appName: "Filecoin Onchain Cloud",
-      projectId: "filecoin-onchain-cloud-dapp",
+      projectId: process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID ?? "foc-upload-dapp",
     },
   );
 };

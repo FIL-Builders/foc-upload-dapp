@@ -10,7 +10,7 @@ Filecoin Onchain Cloud dApp — Next.js app for uploading/managing files on File
 
 **Commands:**
 
-```
+```bash
 pnpm dev              # Dev server at http://localhost:3000
 pnpm build            # Production build (static export to out/)
 pnpm lint             # ESLint
@@ -26,13 +26,13 @@ No test suite exists.
 
 ### Layers
 
-| Layer     | Location          | Rule                                                   |
-| --------- | ----------------- | ------------------------------------------------------ |
-| Pages     | `src/app/`        | Next.js App Router routes                              |
-| Components| `src/components/` | Reusable UI; shadcn primitives in `ui/`                |
-| Hooks     | `src/hooks/`      | Data fetching, mutations, React Query, toast, Zustand  |
-| Libs      | `src/lib/`        | Pure stateless functions and transformations            |
-| Providers | `src/providers/`  | Context providers wrapping Zustand stores              |
+| Layer      | Location          | Rule                                                  |
+| ---------- | ----------------- | ----------------------------------------------------- |
+| Pages      | `src/app/`        | Next.js App Router routes                             |
+| Components | `src/components/` | Reusable UI; shadcn primitives in `ui/`               |
+| Hooks      | `src/hooks/`      | Data fetching, mutations, React Query, toast, Zustand |
+| Libs       | `src/lib/`        | Pure stateless functions and transformations          |
+| Providers  | `src/providers/`  | Context providers wrapping Zustand stores             |
 
 ### Provider stack (root layout, `src/app/layout.tsx`)
 
@@ -49,7 +49,7 @@ No test suite exists.
 
 ## File Map
 
-```
+```text
 src/
   app/
     page.tsx                        # Dashboard (/)
@@ -111,6 +111,7 @@ src/
 Optional delegated signing system. Stores a Secp256k1 key locally so upload/delete/dataset operations don't prompt the wallet each time. Critical for multi-file multi-copy workflows.
 
 **Lifecycle:**
+
 1. `getSynapseClient()` (`src/lib/synapse-client.ts`) checks for stored session key
 2. If missing, opens session modal and waits for user to create one
 3. `SessionKey.login(walletClient, { address, expiresAt })` creates key with `DefaultFwssPermissions`
@@ -120,6 +121,7 @@ Optional delegated signing system. Stores a Secp256k1 key locally so upload/dele
 **Status derivation:** `deriveSessionStatus(expiresAt)` → `"none" | "expired" | "expiring" | "valid"` (expiring = <1 hour remaining)
 
 **Files:**
+
 - `src/providers/session-key/session-store.ts` — Zustand store: `save()`, `clear()`, `hydrate()`, `getSessionData()`
 - `src/providers/session-key/use-session.ts` — `useSessionStatus()`, `useLoginSession()`, `useRevokeSession()`, `getSessionKey()`
 - `src/providers/session-key/session-provider.tsx` — Context wrapper, hydrates on connection change
@@ -134,7 +136,7 @@ Optional delegated signing system. Stores a Secp256k1 key locally so upload/dele
 
 React Query hook returning combined wallet + storage data:
 
-```
+```text
 filBalance: bigint          # Native FIL
 usdfcBalance: bigint        # USDFC ERC-20 token
 warmStorageBalance: bigint  # Available funds in Synapse Pay contract
@@ -157,6 +159,7 @@ Core calculation engine called by `useBalances` and by upload hooks before uploa
 **Inputs:** `client, address, config { storageCapacity, persistencePeriod, minDaysThreshold }, fileSize?, newDatasets? { count, withCDN }`
 
 **What it calculates:**
+
 - Monthly rate from on-chain pricing: `pricePerTiBPerMonth * (fileSize / TiB)`
 - Minimum dataset rate: on-chain `minimumPricePerMonth` (~$0.06/month per dataset)
 - CDN dataset creation cost: 1 USDFC upfront per new CDN dataset
@@ -164,6 +167,7 @@ Core calculation engine called by `useBalances` and by upload hooks before uploa
 - Withdraw safety: `availableToFreeUp` = excess beyond configured needs
 
 **Other pure functions in same file:**
+
 - `computeDashboardMetrics(balances, datasets, pricing)` — storage usage %, burn rate %
 - `computeRequiredCapacity(monthlyRate, pricePerTiB)` — GB needed to match current rate
 - `computeConfigCostPreview(capacityGiB, periodDays, warningDays, balance, pricing)` — cost preview for settings
@@ -172,7 +176,7 @@ Core calculation engine called by `useBalances` and by upload hooks before uploa
 
 Combines `useBalances` + `useDataSets` into `{ balances, datasets, metrics, isLoading }` for dashboard.
 
-## Payments
+## Filecoin Pay Allowances
 
 The Synapse payment system uses two allowances:
 
@@ -182,11 +186,13 @@ The Synapse payment system uses two allowances:
 ### Storage Config (`src/providers/storage-config/`)
 
 User preferences persisted to localStorage via Zustand:
+
 - `storageCapacity` (GiB) → affects rate + lockup allowances
 - `persistencePeriod` (days) → affects lockup allowance
 - CDN toggle → higher price, faster retrieval
 
 **Files:**
+
 - `src/providers/storage-config/storage-config-store.ts` — Zustand store
 - `src/providers/storage-config/storage-config-modal.tsx` — Settings UI
 - `src/components/pay/deposit.tsx` — Deposit flow (ERC-20 approve + deposit)
@@ -196,10 +202,10 @@ User preferences persisted to localStorage via Zustand:
 
 Supports multi-file, multi-copy uploads. Three modes:
 
-| Mode       | Hook                | Description                                           |
-| ---------- | ------------------- | ----------------------------------------------------- |
-| `standard` | `useUpload`            | Store files on Filecoin storage providers                          |
-| `cdn`      | `useUpload`            | Standard + Filecoin Beam (CDN service addon) for fast retrieval    |
+| Mode       | Hook                   | Description                                                                  |
+| ---------- | ---------------------- | ---------------------------------------------------------------------------- |
+| `standard` | `useUpload`            | Store files on Filecoin storage providers                                    |
+| `cdn`      | `useUpload`            | Standard + Filecoin Beam (CDN service addon) for fast retrieval              |
 | `pin`      | `useFilecoinPinUpload` | Standard + Filecoin Pin (IPFS service addon) — CAR file, IPFS gateway access |
 
 ### Upload Flow (standard/CDN)
@@ -268,14 +274,16 @@ Supports multi-file, multi-copy uploads. Three modes:
 Prettier: printWidth 100, double quotes, semicolons, trailing commas.
 
 Import order (`@ianvs/prettier-plugin-sort-imports`):
-```
+
+```text
 react → next → third-party → @/lib → @/hooks → @/providers → @/types → @/components → relative
 ```
 
 ## Environment Variables
 
 - `NEXT_PUBLIC_IPFS_GATEWAY_URL` — IPFS gateway (default: `https://ipfs.io/ipfs/`)
-- `NEXT_PUBLIC_DAPP_ID` — dApp identifier (default: `fs-upload-dapp`)
+- `NEXT_PUBLIC_DAPP_ID` — dApp identifier (default: `foc-upload-dapp`)
+- `NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID` — WalletConnect project ID (default: `foc-upload-dapp`)
 
 ## Filecoin Onchain Cloud — SDK & Platform Reference
 
@@ -312,20 +320,20 @@ LLM-optimized index: https://docs.filecoin.cloud/llms.txt
 
 Key hooks used by this dApp:
 
-| Hook | Purpose |
-| ---- | ------- |
-| `useDataSets` | Fetch all datasets for an address |
-| `useDepositAndApprove` | Deposit USDFC + set allowances in one tx |
-| `useDeposit` | Deposit USDFC to Pay contract |
-| `useWithdraw` | Withdraw USDFC from Pay contract |
-| `useServicePrice` | On-chain storage pricing |
-| `useAccountInfo` | Pay account info (balance, lockup, rate) |
-| `useERC20Balance` | ERC-20 token balance |
-| `useProviders` | List storage providers |
-| `useApproveAllowance` | Set rate/lockup allowances |
-| `useUpload` | SDK-level upload (this dApp uses custom hooks instead) |
-| `useDeletePiece` | Delete a piece from a dataset |
-| `useCreateDataSet` | Create a new dataset |
+| Hook                   | Purpose                                                |
+| ---------------------- | ------------------------------------------------------ |
+| `useDataSets`          | Fetch all datasets for an address                      |
+| `useDepositAndApprove` | Deposit USDFC + set allowances in one tx               |
+| `useDeposit`           | Deposit USDFC to Pay contract                          |
+| `useWithdraw`          | Withdraw USDFC from Pay contract                       |
+| `useServicePrice`      | On-chain storage pricing                               |
+| `useAccountInfo`       | Pay account info (balance, lockup, rate)               |
+| `useERC20Balance`      | ERC-20 token balance                                   |
+| `useProviders`         | List storage providers                                 |
+| `useApproveAllowance`  | Set rate/lockup allowances                             |
+| `useUpload`            | SDK-level upload (this dApp uses custom hooks instead) |
+| `useDeletePiece`       | Delete a piece from a dataset                          |
+| `useCreateDataSet`     | Create a new dataset                                   |
 
 Key interfaces: `DataSetWithPieces`, `UseServicePriceResult`, `UseUploadVariables`
 
@@ -335,15 +343,15 @@ Full API reference: https://docs.filecoin.cloud/reference/filoz/synapse-react/to
 
 Low-level modules used:
 
-| Module | Purpose |
-| ------ | ------- |
-| `SessionKey` | Session key creation, login, revoke, permission management |
-| `Synapse` | Main SDK class — `new Synapse({ client, sessionClient })` |
-| `storage` | `createContexts()`, `createContext()`, storage operations |
-| `pay` | Payment contract interactions (`accounts`, `deposit`, `withdraw`) |
-| `chains` | Chain configs for Filecoin Mainnet + Calibration |
-| `pieces` | Piece CID utilities (`asPieceCID`, `getPieceInfoFromCid`) |
-| `providers` | Provider discovery and service URL resolution |
+| Module       | Purpose                                                           |
+| ------------ | ----------------------------------------------------------------- |
+| `SessionKey` | Session key creation, login, revoke, permission management        |
+| `Synapse`    | Main SDK class — `new Synapse({ client, sessionClient })`         |
+| `storage`    | `createContexts()`, `createContext()`, storage operations         |
+| `pay`        | Payment contract interactions (`accounts`, `deposit`, `withdraw`) |
+| `chains`     | Chain configs for Filecoin Mainnet + Calibration                  |
+| `pieces`     | Piece CID utilities (`asPieceCID`, `getPieceInfoFromCid`)         |
+| `providers`  | Provider discovery and service URL resolution                     |
 
 Contract ABIs available: `erc20`, `fwss`, `filecoinPayV1`, `pdpVerifier`, `sessionKeyRegistry`, `serviceProviderRegistry`
 

@@ -40,7 +40,7 @@ export const useUpload = () => {
       phase.advance("session", "resolve");
 
       const contexts = await synapse.storage.createContexts({
-        count: copies,
+        copies,
         metadata: withCDN ? { ...APP_METADATA, withCDN: "" } : APP_METADATA,
         withCDN,
       });

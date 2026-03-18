@@ -11,9 +11,9 @@
     "format:check": "prettier --check \"src/**/*.{ts,tsx,js,jsx,json,css}\""
   },
   "dependencies": {
-    "@filoz/synapse-core": "^0.2.2",
+    "@filoz/synapse-core": "^0.3.1",
     "@filoz/synapse-react": "^0.2.2",
-    "@filoz/synapse-sdk": "^0.38.0",
+    "@filoz/synapse-sdk": "^0.40.0",
     "@hookform/resolvers": "^5.2.2",
     "@ipld/car": "^5.4.2",
     "@radix-ui/react-collapsible": "^1.1.12",

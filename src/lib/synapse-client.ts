@@ -5,6 +5,7 @@ import { createWalletClient, custom } from "viem";
 import { getWalletClient } from "wagmi/actions";
 import { getSessionData, getSessionKey, useSessionStore } from "@/providers/session-key";
 import { wagmiConfig } from "@/providers/web3-provider";
+import { config } from "./utils";
 
 function ensureSession(): Promise<void> {
   if (getSessionData()) return Promise.resolve();
@@ -39,5 +40,5 @@ export async function getSynapseClient(withSession: boolean = true) {
     await ensureSession();
     sessionKey = getSessionKey(walletClient, chainId);
   }
-  return new Synapse({ client, sessionClient: sessionKey?.client });
+  return new Synapse({ client, sessionClient: sessionKey?.client, source: config.dappId });
 }

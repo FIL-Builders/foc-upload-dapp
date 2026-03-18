@@ -47,7 +47,7 @@ export const useFilecoinPinUpload = () => {
       phase.advance("session", "resolve");
 
       const contexts = await synapse.storage.createContexts({
-        count: copies,
+        copies,
         metadata: { ...APP_METADATA, withIPFSIndexing: "" },
       });
 
